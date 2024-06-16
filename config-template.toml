@@ -1,0 +1,8 @@
+[Webhook]
+urls = ["webhook-url1", "webhook-url2", "webhook-url3"]
+
+[Twitch]
+client_id = "example-client-id"
+client_secret = "example-client-secret"
+access_token = "example-access-token"
+game_id = "twitch-game-id"
