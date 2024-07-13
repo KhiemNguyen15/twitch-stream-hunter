@@ -11,20 +11,25 @@ current_streams = set()
 
 
 async def get_streams():
-    twitch_config = config["Twitch"]
+    try:
+        twitch_config = config["Twitch"]
 
-    response = requests.get(
-        f"https://api.twitch.tv/helix/streams?game_id={twitch_config['game_id']}",
-        headers={
-            "Authorization": f"Bearer {twitch_config['access_token']}",
-            "Client-Id": twitch_config["client_id"],
-        },
-    )
-    assert response.status_code == 200
+        response = requests.get(
+            f"https://api.twitch.tv/helix/streams?game_id={twitch_config['game_id']}",
+            headers={
+                "Authorization": f"Bearer {twitch_config['access_token']}",
+                "Client-Id": twitch_config["client_id"],
+            },
+        )
+        assert response.status_code == 200
 
-    data = response.json()
+        data = response.json()
 
-    return list(data["data"])
+        return list(data["data"])
+
+    except Exception:
+        print("Error while getting streams.")
+        return None
 
 
 async def send_message(webhook, stream):
