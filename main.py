@@ -11,9 +11,9 @@ current_streams = set()
 
 
 async def get_streams():
-    try:
-        twitch_config = config["Twitch"]
+    twitch_config = config["Twitch"]
 
+    try:
         response = requests.get(
             f"https://api.twitch.tv/helix/streams?game_id={twitch_config['game_id']}",
             headers={
