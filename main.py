@@ -10,14 +10,41 @@ config = toml.load("config.toml")
 current_streams = set()
 
 
+async def get_access_token():
+    twitch_config = config["Twitch"]
+
+    try:
+        response = requests.post(
+            "https://id.twitch.tv/oauth2/token",
+            params={
+                "client_id": twitch_config["client_id"],
+                "client_secret": twitch_config["client_secret"],
+                "grant_type": "client_credentials",
+            },
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+
+        return data["access_token"]
+
+    except Exception:
+        print("Error while getting access token.")
+        return None
+
+
 async def get_streams():
     twitch_config = config["Twitch"]
 
     try:
+        access_token = await get_access_token()
+        if not access_token:
+            return None
+
         response = requests.get(
             f"https://api.twitch.tv/helix/streams?game_id={twitch_config['game_id']}",
             headers={
-                "Authorization": f"Bearer {twitch_config['access_token']}",
+                "Authorization": f"Bearer {access_token}",
                 "Client-Id": twitch_config["client_id"],
             },
         )
