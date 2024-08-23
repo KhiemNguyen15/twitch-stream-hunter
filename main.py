@@ -1,9 +1,18 @@
+from datetime import datetime
 import aiohttp
 import asyncio
 import discord
+import logging
 import requests
 import toml
 
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    filename=f"logs/logfile_{datetime.today().strftime('%Y-%m-%d')}.log",
+    level=logging.DEBUG,
+)
 
 config = toml.load("config.toml")
 
@@ -29,7 +38,7 @@ async def get_access_token():
         return data["access_token"]
 
     except Exception:
-        print("Error while getting access token.")
+        logging.error("Error while getting access token.")
         return None
 
 
@@ -55,7 +64,7 @@ async def get_streams():
         return list(data["data"])
 
     except Exception:
-        print("Error while getting streams.")
+        logging.error("Error while getting streams.")
         return None
 
 
@@ -111,6 +120,8 @@ async def every(__seconds: float, func, *args, **kwargs):
 
 
 if __name__ == "__main__":
+    logging.info("Process started.")
+
     loop = asyncio.get_event_loop()
     loop.create_task(every(300, check_streams))
 
