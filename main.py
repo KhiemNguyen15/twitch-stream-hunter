@@ -19,7 +19,23 @@ config = toml.load("config.toml")
 current_streams = set()
 
 
-async def get_access_token():
+async def validate_token(access_token):
+    try:
+        response = requests.get(
+            "https://id.twitch.tv/oauth2/validate",
+            headers={
+                "Authorization": f"OAuth {access_token}",
+            },
+        )
+
+        return response.status_code == 200
+
+    except Exception:
+        logging.error("Error while validating access token.")
+        return False
+
+
+async def get_token():
     twitch_config = config["Twitch"]
 
     try:
@@ -42,14 +58,10 @@ async def get_access_token():
         return None
 
 
-async def get_streams():
+async def get_streams(access_token):
     twitch_config = config["Twitch"]
 
     try:
-        access_token = await get_access_token()
-        if not access_token:
-            return None
-
         response = requests.get(
             f"https://api.twitch.tv/helix/streams?game_id={twitch_config['game_id']}",
             headers={
@@ -72,7 +84,7 @@ async def send_message(webhook, stream):
     with open("doe.jpeg", "rb") as f:
         embed_json = {
             "title": "New Stream!",
-            "description": f"**{stream['user_name']}** is streaming Duelists of Eden at [twitch.tv/{stream['user_login']}](https://www.twitch.tv/{stream['user_login']})!",
+            "description": f"**{stream['user_name']}** is streaming Fortnite at [twitch.tv/{stream['user_login']}](https://www.twitch.tv/{stream['user_login']})!",
             "color": 0x1A2430,
             "url": f"https://www.twitch.tv/{stream['user_login']}",
             "image": {"url": "attachment://doe.jpeg"},
@@ -89,7 +101,12 @@ async def send_message(webhook, stream):
 
 
 async def check_streams():
-    streams = await get_streams()
+    global access_token
+
+    if not await validate_token(access_token):
+        access_token = await get_token()
+
+    streams = await get_streams(access_token)
     if not streams:
         return
 
@@ -121,6 +138,9 @@ async def every(__seconds: float, func, *args, **kwargs):
 
 if __name__ == "__main__":
     logging.info("Process started.")
+
+    global access_token
+    access_token = ""
 
     loop = asyncio.get_event_loop()
     loop.create_task(every(300, check_streams))
