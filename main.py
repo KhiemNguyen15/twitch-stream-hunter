@@ -84,7 +84,7 @@ async def send_message(webhook, stream):
     with open("doe.jpeg", "rb") as f:
         embed_json = {
             "title": "New Stream!",
-            "description": f"**{stream['user_name']}** is streaming Fortnite at [twitch.tv/{stream['user_login']}](https://www.twitch.tv/{stream['user_login']})!",
+            "description": f"**{stream['user_name']}** is streaming Duelists of Eden at [twitch.tv/{stream['user_login']}](https://www.twitch.tv/{stream['user_login']})!",
             "color": 0x1A2430,
             "url": f"https://www.twitch.tv/{stream['user_login']}",
             "image": {"url": "attachment://doe.jpeg"},
