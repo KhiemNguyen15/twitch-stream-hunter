@@ -3,6 +3,7 @@ import json
 import logging
 import os
 
+from database_handler.populate import populate_db
 from dotenv import load_dotenv
 from twitch_handler import handler
 import aiohttp
@@ -88,8 +89,11 @@ def main():
     access_token = ""
     current_streams = set()
 
+    url = os.getenv("API_URL")
+
     loop = asyncio.get_event_loop()
     loop.create_task(every(300, check_streams))
+    loop.create_task(every(604800, populate_db, url))
 
     loop.run_forever()
 
