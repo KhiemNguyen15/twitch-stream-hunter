@@ -1,5 +1,6 @@
 import json
 
+import aiohttp
 import requests
 
 
@@ -19,11 +20,16 @@ async def populate_db(url):
     with open("data/game_info.json", "r") as data:
         games = json.load(data)
 
-    for game in games:
-        body = {
-            "id": int(game["id"]),
-            "name": game["name"],
-            "image_url": game["box_art_url"],
-        }
+    res = requests.get(url)
+    existing_games = res.json()
+    start_id = existing_games[-1]["id"]
 
-        requests.post(url, body)
+    async with aiohttp.ClientSession() as session:
+        for game in games[start_id - 1 :]:
+            body = {
+                "id": int(game["id"]),
+                "name": game["name"],
+                "image_url": game["box_art_url"],
+            }
+
+            await session.post(url, json=body)
